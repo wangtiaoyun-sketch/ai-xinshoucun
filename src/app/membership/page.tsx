@@ -5,7 +5,7 @@ import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Check, Loader2 } from "lucide-react"
+import { Check, Copy, QrCode, MessageCircle, ExternalLink } from "lucide-react"
 
 const plans = [
   {
@@ -52,43 +52,21 @@ const plans = [
     features: [
       "Pro 会员全部权益",
       "终身有效，无需续费",
-      "专属 Discord 社群",
+      "专属社群",
       "1v1 学习规划咨询",
       "Beta 功能优先体验",
-      "Affiliate 分成资格",
     ],
   },
 ]
 
 export default function MembershipPage() {
-  const [loading, setLoading] = useState<string | null>(null)
-  const [error, setError] = useState("")
-  const stripeEnabled = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null)
+  const [copied, setCopied] = useState(false)
 
-  const handleSubscribe = async (planId: string) => {
-    if (!stripeEnabled) {
-      setError("支付系统暂未配置")
-      return
-    }
-    setLoading(planId)
-    setError("")
-    try {
-      const res = await fetch("/api/stripe/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan: planId }),
-      })
-      const data = await res.json()
-      if (data.url) {
-        window.location.href = data.url
-      } else {
-        setError(data.error || "创建支付失败")
-      }
-    } catch {
-      setError("网络错误，请稍后重试")
-    } finally {
-      setLoading(null)
-    }
+  const handleCopyWx = () => {
+    navigator.clipboard.writeText("AIxinshoucun")
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }
 
   return (
@@ -98,24 +76,11 @@ export default function MembershipPage() {
         <p className="text-muted-foreground max-w-xl mx-auto">
           选择适合你的计划，解锁更深度的 AI 学习体验
         </p>
-        {!stripeEnabled && (
-          <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg text-sm inline-block">
-            ⚠️ 支付系统配置中 — 去{" "}
-            <a href="https://dashboard.stripe.com" target="_blank" className="underline">Stripe</a>
-            {" "}创建账户后告诉我
-          </div>
-        )}
       </div>
 
-      {error && (
-        <div className="max-w-md mx-auto mb-6 p-3 text-sm bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400 text-center">
-          {error}
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto mb-12">
         {plans.map((plan) => (
-          <Card key={plan.id} className={`relative ${plan.popular ? "border-primary shadow-lg scale-105" : ""}`}>
+          <Card key={plan.id}>
             {plan.popular && (
               <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">🔥 最受欢迎</Badge>
             )}
@@ -144,14 +109,9 @@ export default function MembershipPage() {
                 <Button
                   className="w-full"
                   variant={plan.popular ? "default" : "outline"}
-                  onClick={() => handleSubscribe(plan.id)}
-                  disabled={loading === plan.id}
+                  onClick={() => setSelectedPlan(plan.id)}
                 >
-                  {loading === plan.id ? (
-                    <><Loader2 className="h-4 w-4 animate-spin mr-1" /> 跳转中...</>
-                  ) : (
-                    plan.id === "lifetime" ? "一次购买" : "立即订阅"
-                  )}
+                  立即开通
                 </Button>
               )}
             </CardContent>
@@ -159,8 +119,90 @@ export default function MembershipPage() {
         ))}
       </div>
 
+      {/* 支付方式弹出 */}
+      {selectedPlan && (
+        <div className="max-w-md mx-auto">
+          <Card className="border-primary">
+            <CardHeader className="text-center">
+              <CardTitle className="text-lg">
+                {selectedPlan === "lifetime" ? "终身会员 ¥299" : "Pro 会员 ¥29/月"}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* 微信支付 */}
+              <div className="text-center border rounded-lg p-6">
+                <QrCode className="h-6 w-6 mx-auto mb-2 text-green-600" />
+                <h4 className="font-semibold mb-1">方式一：微信扫码支付</h4>
+                <p className="text-sm text-muted-foreground mb-4">
+                  扫描下方收款码支付，备注邮箱
+                </p>
+                <div className="w-48 h-48 mx-auto border rounded-lg bg-muted flex items-center justify-center mb-3">
+                  <span className="text-muted-foreground text-xs text-center">
+                    这里放你的<br/>微信收款码图片
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  付款后截图发给客服，24 小时内开通
+                </p>
+              </div>
+
+              {/* 微信联系 */}
+              <div className="text-center border rounded-lg p-6">
+                <MessageCircle className="h-6 w-6 mx-auto mb-2 text-blue-600" />
+                <h4 className="font-semibold mb-1">方式二：微信联系开通</h4>
+                <p className="text-sm text-muted-foreground mb-3">
+                  添加微信，直接转账开通
+                </p>
+                <div className="flex items-center justify-center gap-2 mb-1">
+                  <code className="bg-muted px-3 py-1.5 rounded text-lg font-bold">
+                    AIxinshoucun
+                  </code>
+                  <Button variant="outline" size="sm" onClick={handleCopyWx}>
+                    {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  备注你想开通的会员类型
+                </p>
+              </div>
+
+              {/* 爱发电 */}
+              <div className="text-center border rounded-lg p-6">
+                <ExternalLink className="h-6 w-6 mx-auto mb-2 text-orange-500" />
+                <h4 className="font-semibold mb-1">方式三：爱发电赞助</h4>
+                <p className="text-sm text-muted-foreground mb-3">
+                  通过爱发电平台赞助，自动开通
+                </p>
+                <a
+                  href="https://afdian.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Button variant="outline" size="sm">
+                    去爱发电赞助 →
+                  </Button>
+                </a>
+              </div>
+
+              <div className="text-center">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSelectedPlan(null)}
+                >
+                  返回
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       <div className="text-center mt-8 text-sm text-muted-foreground">
-        <p>有疑问？<Link href="/community" className="text-primary hover:underline">社区问答</Link></p>
+        <p>开通后联系客服（微信：AIxinshoucun）即可激活</p>
+        <p className="mt-1">
+          有疑问？<Link href="/community" className="text-primary hover:underline">社区问答</Link>
+        </p>
       </div>
     </div>
   )
