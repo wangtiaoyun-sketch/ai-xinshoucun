@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -61,6 +62,7 @@ const plans = [
 
 export default function MembershipPage() {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null)
+  const [payMethod, setPayMethod] = useState<"wx" | "zfb" | null>(null)
   const [copied, setCopied] = useState(false)
 
   const handleCopyWx = () => {
@@ -80,7 +82,7 @@ export default function MembershipPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto mb-12">
         {plans.map((plan) => (
-          <Card key={plan.id}>
+          <Card key={plan.id} className="relative">
             {plan.popular && (
               <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">🔥 最受欢迎</Badge>
             )}
@@ -119,77 +121,118 @@ export default function MembershipPage() {
         ))}
       </div>
 
-      {/* 支付方式弹出 */}
       {selectedPlan && (
-        <div className="max-w-md mx-auto">
+        <div className="max-w-lg mx-auto">
           <Card className="border-primary">
             <CardHeader className="text-center">
-              <CardTitle className="text-lg">
+              <CardTitle>
                 {selectedPlan === "lifetime" ? "终身会员 ¥299" : "Pro 会员 ¥29/月"}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* 微信支付 */}
-              <div className="text-center border rounded-lg p-6">
-                <QrCode className="h-6 w-6 mx-auto mb-2 text-green-600" />
-                <h4 className="font-semibold mb-1">方式一：微信扫码支付</h4>
-                <p className="text-sm text-muted-foreground mb-4">
-                  扫描下方收款码支付，备注邮箱
-                </p>
-                <div className="w-48 h-48 mx-auto border rounded-lg bg-muted flex items-center justify-center mb-3">
-                  <span className="text-muted-foreground text-xs text-center">
-                    这里放你的<br/>微信收款码图片
-                  </span>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  付款后截图发给客服，24 小时内开通
-                </p>
-              </div>
-
-              {/* 微信联系 */}
-              <div className="text-center border rounded-lg p-6">
-                <MessageCircle className="h-6 w-6 mx-auto mb-2 text-blue-600" />
-                <h4 className="font-semibold mb-1">方式二：微信联系开通</h4>
-                <p className="text-sm text-muted-foreground mb-3">
-                  添加微信，直接转账开通
-                </p>
-                <div className="flex items-center justify-center gap-2 mb-1">
-                  <code className="bg-muted px-3 py-1.5 rounded text-lg font-bold">
-                    AIxinshoucun
-                  </code>
-                  <Button variant="outline" size="sm" onClick={handleCopyWx}>
-                    {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+              {/* 选择支付方式 */}
+              {!payMethod ? (
+                <div className="space-y-3">
+                  <p className="text-sm text-center text-muted-foreground mb-2">选择支付方式</p>
+                  <Button
+                    variant="outline"
+                    className="w-full h-16 justify-start gap-4"
+                    onClick={() => setPayMethod("wx")}
+                  >
+                    <span className="text-2xl">💚</span>
+                    <div className="text-left">
+                      <p className="font-medium">微信支付</p>
+                      <p className="text-xs text-muted-foreground">扫码支付，24 小时内开通</p>
+                    </div>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full h-16 justify-start gap-4"
+                    onClick={() => setPayMethod("zfb")}
+                  >
+                    <span className="text-2xl">💙</span>
+                    <div className="text-left">
+                      <p className="font-medium">支付宝</p>
+                      <p className="text-xs text-muted-foreground">扫码支付，24 小时内开通</p>
+                    </div>
                   </Button>
                 </div>
-                <p className="text-xs text-muted-foreground mt-2">
-                  备注你想开通的会员类型
-                </p>
-              </div>
+              ) : null}
+
+              {/* 微信扫码 */}
+              {payMethod === "wx" && (
+                <div className="text-center">
+                  <div className="mb-4">
+                    <Image
+                      src="/wx.jpg"
+                      alt="微信收款码"
+                      width={220}
+                      height={220}
+                      className="mx-auto rounded-lg border"
+                    />
+                  </div>
+                  <p className="text-sm font-medium mb-1">
+                    请支付 {selectedPlan === "lifetime" ? "¥299" : "¥29"}
+                  </p>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    扫码支付时请备注你的邮箱，付款后 24 小时内开通
+                  </p>
+                  <div className="flex items-center justify-center gap-2 mb-3">
+                    <code className="bg-muted px-3 py-1.5 rounded text-sm">
+                      AIxinshoucun
+                    </code>
+                    <Button variant="outline" size="sm" onClick={handleCopyWx}>
+                      {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    付款后截图发给上面微信号，加速开通
+                  </p>
+                  <Button variant="ghost" size="sm" className="mt-3" onClick={() => setPayMethod(null)}>
+                    ← 换一种方式
+                  </Button>
+                </div>
+              )}
+
+              {/* 支付宝扫码 */}
+              {payMethod === "zfb" && (
+                <div className="text-center">
+                  <div className="mb-4">
+                    <Image
+                      src="/zfb.jpg"
+                      alt="支付宝收款码"
+                      width={220}
+                      height={220}
+                      className="mx-auto rounded-lg border"
+                    />
+                  </div>
+                  <p className="text-sm font-medium mb-1">
+                    请支付 {selectedPlan === "lifetime" ? "¥299" : "¥29"}
+                  </p>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    扫码支付时请备注邮箱，付款后 24 小时内开通
+                  </p>
+                  <Button variant="ghost" size="sm" onClick={() => setPayMethod(null)}>
+                    ← 换一种方式
+                  </Button>
+                </div>
+              )}
 
               {/* 爱发电 */}
-              <div className="text-center border rounded-lg p-6">
-                <ExternalLink className="h-6 w-6 mx-auto mb-2 text-orange-500" />
-                <h4 className="font-semibold mb-1">方式三：爱发电赞助</h4>
-                <p className="text-sm text-muted-foreground mb-3">
-                  通过爱发电平台赞助，自动开通
-                </p>
+              <div className="text-center border-t pt-4">
                 <a
-                  href="https://afdian.com"
+                  href="https://ifdian.net/a/aixinshoucun?tab=sponsor"
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-sm text-orange-500 hover:underline"
                 >
-                  <Button variant="outline" size="sm">
-                    去爱发电赞助 →
-                  </Button>
+                  <ExternalLink className="h-4 w-4" />
+                  也可以通过爱发电赞助 →
                 </a>
               </div>
 
               <div className="text-center">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSelectedPlan(null)}
-                >
+                <Button variant="ghost" size="sm" onClick={() => { setSelectedPlan(null); setPayMethod(null) }}>
                   返回
                 </Button>
               </div>
@@ -200,9 +243,6 @@ export default function MembershipPage() {
 
       <div className="text-center mt-8 text-sm text-muted-foreground">
         <p>开通后联系客服（微信：AIxinshoucun）即可激活</p>
-        <p className="mt-1">
-          有疑问？<Link href="/community" className="text-primary hover:underline">社区问答</Link>
-        </p>
       </div>
     </div>
   )
