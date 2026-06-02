@@ -1,11 +1,15 @@
-﻿import Link from "next/link"
+﻿"use client"
+
+import { useState } from "react"
+import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Check } from "lucide-react"
+import { Check, Loader2 } from "lucide-react"
 
 const plans = [
   {
+    id: "free",
     name: "免费版",
     price: "¥0",
     period: "永久",
@@ -19,10 +23,9 @@ const plans = [
       "AI 日报阅读",
       "基础工具对比",
     ],
-    cta: "当前方案",
-    ctaVariant: "outline" as const,
   },
   {
+    id: "pro",
     name: "Pro 会员",
     price: "¥29",
     period: "/月",
@@ -38,10 +41,9 @@ const plans = [
       "每月 2 次专家答疑",
       "优先获取新教程",
     ],
-    cta: "立即订阅",
-    ctaVariant: "default" as const,
   },
   {
+    id: "lifetime",
     name: "终身会员",
     price: "¥299",
     period: "一次性",
@@ -55,12 +57,40 @@ const plans = [
       "Beta 功能优先体验",
       "Affiliate 分成资格",
     ],
-    cta: "一次购买",
-    ctaVariant: "outline" as const,
   },
 ]
 
 export default function MembershipPage() {
+  const [loading, setLoading] = useState<string | null>(null)
+  const [error, setError] = useState("")
+  const stripeEnabled = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+
+  const handleSubscribe = async (planId: string) => {
+    if (!stripeEnabled) {
+      setError("支付系统暂未配置")
+      return
+    }
+    setLoading(planId)
+    setError("")
+    try {
+      const res = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan: planId }),
+      })
+      const data = await res.json()
+      if (data.url) {
+        window.location.href = data.url
+      } else {
+        setError(data.error || "创建支付失败")
+      }
+    } catch {
+      setError("网络错误，请稍后重试")
+    } finally {
+      setLoading(null)
+    }
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="text-center mb-10">
@@ -68,11 +98,24 @@ export default function MembershipPage() {
         <p className="text-muted-foreground max-w-xl mx-auto">
           选择适合你的计划，解锁更深度的 AI 学习体验
         </p>
+        {!stripeEnabled && (
+          <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg text-sm inline-block">
+            ⚠️ 支付系统配置中 — 去{" "}
+            <a href="https://dashboard.stripe.com" target="_blank" className="underline">Stripe</a>
+            {" "}创建账户后告诉我
+          </div>
+        )}
       </div>
+
+      {error && (
+        <div className="max-w-md mx-auto mb-6 p-3 text-sm bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400 text-center">
+          {error}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
         {plans.map((plan) => (
-          <Card key={plan.name} className={`relative ${plan.popular ? "border-primary shadow-lg scale-105" : ""}`}>
+          <Card key={plan.id} className={`relative ${plan.popular ? "border-primary shadow-lg scale-105" : ""}`}>
             {plan.popular && (
               <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">🔥 最受欢迎</Badge>
             )}
@@ -86,26 +129,38 @@ export default function MembershipPage() {
             </CardHeader>
             <CardContent>
               <ul className="space-y-2 mb-6">
-                {plan.features.map((feature) => (
-                  <li key={feature} className="flex items-start gap-2 text-sm">
+                {plan.features.map((f) => (
+                  <li key={f} className="flex items-start gap-2 text-sm">
                     <Check className="h-4 w-4 text-green-500 shrink-0 mt-0.5" />
-                    <span className="text-muted-foreground">{feature}</span>
+                    <span className="text-muted-foreground">{f}</span>
                   </li>
                 ))}
               </ul>
-              <Button variant={plan.ctaVariant} className="w-full" disabled={plan.name === "免费版"}>
-                {plan.cta}
-              </Button>
+              {plan.id === "free" ? (
+                <Button variant="outline" className="w-full" disabled>
+                  当前方案
+                </Button>
+              ) : (
+                <Button
+                  className="w-full"
+                  variant={plan.popular ? "default" : "outline"}
+                  onClick={() => handleSubscribe(plan.id)}
+                  disabled={loading === plan.id}
+                >
+                  {loading === plan.id ? (
+                    <><Loader2 className="h-4 w-4 animate-spin mr-1" /> 跳转中...</>
+                  ) : (
+                    plan.id === "lifetime" ? "一次购买" : "立即订阅"
+                  )}
+                </Button>
+              )}
             </CardContent>
           </Card>
         ))}
       </div>
 
       <div className="text-center mt-8 text-sm text-muted-foreground">
-        <p>Pro 和终身会员即将开放，敬请期待 ✨</p>
-        <p className="mt-1">
-          有疑问？<Link href="/community" className="text-primary hover:underline">社区问答</Link>
-        </p>
+        <p>有疑问？<Link href="/community" className="text-primary hover:underline">社区问答</Link></p>
       </div>
     </div>
   )
