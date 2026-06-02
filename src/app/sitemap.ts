@@ -1,5 +1,5 @@
 ﻿import type { MetadataRoute } from "next"
-import { tutorials, siteConfig } from "@/lib/constants"
+import { tutorials, siteConfig } from "@/lib/tutorials"
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes = [

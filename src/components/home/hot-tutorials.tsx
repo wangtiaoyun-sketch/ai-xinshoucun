@@ -1,7 +1,7 @@
 ﻿import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { tutorials, difficultyLabels } from "@/lib/constants"
+import { tutorials, difficultyLabels } from "@/lib/tutorials"
 
 export function HotTutorials() {
   const hotTutorials = [...tutorials].sort((a, b) => b.readCount - a.readCount).slice(0, 6)

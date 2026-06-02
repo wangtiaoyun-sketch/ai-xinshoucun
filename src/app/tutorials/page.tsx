@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import type { TutorialCategory } from "@/types"
-import { tutorials, categories, difficultyLabels } from "@/lib/constants"
+import { tutorials, categories, difficultyLabels } from "@/lib/tutorials"
 
 function TutorialsContent() {
   const searchParams = useSearchParams()

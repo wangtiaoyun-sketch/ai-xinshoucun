@@ -2,7 +2,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { learningPaths, getTutorialBySlug, difficultyLabels } from "@/lib/constants"
+import { learningPaths, getTutorialBySlug, difficultyLabels } from "@/lib/tutorials"
 
 export default function LearningPathsPage() {
   return (

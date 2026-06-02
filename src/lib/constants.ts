@@ -1,4 +1,3 @@
-﻿
 import type { Tutorial, LearningPath, AIDaily, TutorialCategory } from '@/types'
 
 export const categories: { id: TutorialCategory; label: string; icon: string }[] = [
@@ -45,6 +44,7 @@ export const learningPaths: LearningPath[] = [
     tutorialSlugs: ['prompt-engineering', 'deepseek-beginners'],
   },
 ]
+
 
 export const tutorials: Tutorial[] = [
   {
@@ -199,3 +199,5 @@ export const siteConfig = {
   ogImage: '/og.png',
   author: 'AI 新手村',
 }
+
+

@@ -1,7 +1,7 @@
 ﻿import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { toolComparisons } from "@/lib/constants-three"
+import { toolComparisons } from "@/lib/tutorials"
 
 export default function ComparisonsPage() {
   return (

@@ -3,7 +3,7 @@ import { notFound } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { getComparisonBySlug } from "@/lib/constants-three"
+import { getComparisonBySlug } from "@/lib/tutorials"
 import type { Metadata } from "next"
 
 type Props = { params: Promise<{ slug: string }> }

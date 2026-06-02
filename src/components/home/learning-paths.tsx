@@ -1,6 +1,6 @@
 ﻿import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { learningPaths } from "@/lib/constants"
+import { learningPaths } from "@/lib/tutorials"
 
 export function LearningPaths() {
   return (

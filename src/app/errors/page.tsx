@@ -6,11 +6,11 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Search, Copy, Check, Lightbulb, AlertCircle } from "lucide-react"
-import { errorSolutions, searchErrors, type ErrorSolution } from "@/lib/constants-three"
+import { errorSolutions, searchErrors } from "@/lib/tutorials"
 
 export default function ErrorsPage() {
   const [query, setQuery] = useState("")
-  const [results, setResults] = useState<ErrorSolution[]>(errorSolutions)
+  const [results, setResults] = useState<any[]>(errorSolutions)
   const [copiedId, setCopiedId] = useState<string | null>(null)
 
   const handleSearch = (value: string) => {
@@ -63,7 +63,7 @@ export default function ErrorsPage() {
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
                       <Badge variant="outline" className="text-xs">{err.tool}</Badge>
-                      {err.tags.map((tag) => (
+                      {err.tags.map((tag: string) => (
                         <Badge key={tag} variant="secondary" className="text-xs">{tag}</Badge>
                       ))}
                     </div>
@@ -103,3 +103,4 @@ export default function ErrorsPage() {
     </div>
   )
 }
+

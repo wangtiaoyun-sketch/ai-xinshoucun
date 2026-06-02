@@ -3,7 +3,7 @@ import { notFound } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import { getDailyBySlug, aiDailyEntries } from "@/lib/constants-three"
+import { getDailyBySlug, aiDailyEntries } from "@/lib/tutorials"
 import type { Metadata } from "next"
 
 type Props = { params: Promise<{ slug: string }> }

@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { tutorials, difficultyLabels } from "@/lib/constants"
+import { tutorials, difficultyLabels } from "@/lib/tutorials"
 import type { User } from "@supabase/supabase-js"
 
 export default function DashboardPage() {
