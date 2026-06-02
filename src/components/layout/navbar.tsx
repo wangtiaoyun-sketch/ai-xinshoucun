@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useState, useEffect } from "react"
 import { useTheme } from "next-themes"
-import { Menu, Moon, Search, Sun, X, User } from "lucide-react"
+import { Menu, Moon, Search, Sun, X, User, Crown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
@@ -15,6 +15,10 @@ const navLinks = [
   { href: "/learning-paths", label: "学习路径" },
   { href: "/sandbox", label: "AI 沙盒" },
   { href: "/prompts", label: "模板库" },
+  { href: "/daily", label: "日报" },
+  { href: "/errors", label: "报错锦囊" },
+  { href: "/comparisons", label: "工具对比" },
+  { href: "/community", label: "社区" },
   { href: "/dashboard", label: "我的空间", auth: true },
 ]
 
@@ -34,18 +38,18 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <Link href="/" className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2 shrink-0">
           <span className="text-2xl">🌱</span>
-          <span className="text-xl font-bold">AI 新手村</span>
+          <span className="text-xl font-bold hidden sm:inline">AI 新手村</span>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-1">
+        <nav className="hidden lg:flex items-center gap-0.5">
           {navLinks.map((link) => (
             (!link.auth || user) && (
               <Link
                 key={link.label}
                 href={link.href}
-                className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground rounded-md hover:bg-accent transition-colors"
+                className="px-2.5 py-2 text-xs xl:text-sm font-medium text-muted-foreground hover:text-foreground rounded-md hover:bg-accent transition-colors whitespace-nowrap"
               >
                 {link.label}
               </Link>
@@ -53,18 +57,17 @@ export function Navbar() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setSearchOpen(!searchOpen)}
-            aria-label="搜索"
-          >
+        <div className="flex items-center gap-1">
+          <Link href="/membership" className="hidden md:flex">
+            <Button variant="ghost" size="sm" className="text-amber-500">
+              <Crown className="h-4 w-4 mr-1" /> 会员
+            </Button>
+          </Link>
+          <Button variant="ghost" size="icon" onClick={() => setSearchOpen(!searchOpen)} aria-label="搜索">
             <Search className="h-5 w-5" />
           </Button>
           <Button
-            variant="ghost"
-            size="icon"
+            variant="ghost" size="icon"
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             aria-label="切换主题"
           >
@@ -79,29 +82,25 @@ export function Navbar() {
             </Link>
           ) : (
             <Link href="/auth/login">
-              <Button variant="ghost" size="sm" className="hidden md:flex">
-                登录
-              </Button>
+              <Button variant="ghost" size="sm" className="hidden md:flex">登录</Button>
             </Link>
           )}
-
           <Sheet>
-            <SheetTrigger className="md:hidden">
+            <SheetTrigger className="lg:hidden">
               <Menu className="h-5 w-5" />
             </SheetTrigger>
             <SheetContent side="right" className="w-[280px]">
-              <nav className="flex flex-col gap-2 mt-8">
+              <nav className="flex flex-col gap-1 mt-8">
                 {navLinks.map((link) => (
                   (!link.auth || user) && (
-                    <Link
-                      key={link.label}
-                      href={link.href}
-                      className="px-4 py-3 text-base font-medium text-muted-foreground hover:text-foreground rounded-md hover:bg-accent transition-colors"
-                    >
+                    <Link key={link.label} href={link.href} className="px-4 py-3 text-base font-medium text-muted-foreground hover:text-foreground rounded-md hover:bg-accent transition-colors">
                       {link.label}
                     </Link>
                   )
                 ))}
+                <Link href="/membership" className="px-4 py-3 text-base font-medium text-amber-500 rounded-md hover:bg-accent transition-colors">
+                  <Crown className="h-4 w-4 inline mr-1" /> 会员
+                </Link>
                 {!user && (
                   <Link href="/auth/login" className="px-4 py-3 text-base font-medium text-primary rounded-md hover:bg-accent transition-colors">
                     登录 / 注册
@@ -116,7 +115,7 @@ export function Navbar() {
       {searchOpen && (
         <div className="border-t bg-background p-4">
           <div className="container mx-auto flex gap-2">
-            <Input placeholder="你想学什么？搜索教程 / 工具 / 报错..." className="flex-1" autoFocus />
+            <Input placeholder="搜索教程 / 工具 / 报错 / 日报..." className="flex-1" autoFocus />
             <Button variant="secondary" onClick={() => setSearchOpen(false)}>
               <X className="h-4 w-4 mr-1" /> 取消
             </Button>
